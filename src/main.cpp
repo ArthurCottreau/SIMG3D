@@ -2,7 +2,6 @@
 // Created by belle on 19/10/2026.
 //
 
-#include "AppFramebuffer.cpp"
 #include "AppSimple.cpp"
 
 int main()

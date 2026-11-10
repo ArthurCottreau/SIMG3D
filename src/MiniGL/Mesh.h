@@ -30,6 +30,11 @@ public:
         glm::vec2 texcoord {};
     };
 
+    struct Texture {
+        unsigned int id;
+        tinyobj::material_t tex;
+    };
+
     struct VertexKey {
         int vertexIndex;
         int texcoordIndex;
@@ -60,6 +65,7 @@ private:
      */
     std::vector<VertexData> m_verticesData;
     std::vector<uint32_t> m_indices;
+    std::vector<Texture> texture_data;
 
     /** \brief Buffers that will store vertices and indices data */
     gpu::Buffer m_buffer, m_indexBuffer;
@@ -77,7 +83,7 @@ public:
      * @param vertices array of vertices
      * @param indices array of indices
      */
-    Mesh(std::vector<VertexData>& vertices, std::vector<uint32_t>& indices);
+    Mesh(std::vector<VertexData>& vertices, std::vector<uint32_t>& indices, std::vector<Texture>& textures);
 
     /**
      * Sets up our buffer datas, their VAO and sends them to the GPU

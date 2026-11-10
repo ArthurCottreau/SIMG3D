@@ -6,8 +6,14 @@
 #include <set>
 #include "Mesh.h"
 
+#include "GPU/Texture.h"
+#include <memory>
+#include <cstring>
+
 namespace mgl
 {
+    std::unique_ptr<mgl::gpu::Texture> t;
+
     Mesh::Mesh(const char *filename)
         : m_buffer(gpu::Buffer::BufferType::Vertex)
         , m_indexBuffer(gpu::Buffer::BufferType::Index)
@@ -34,10 +40,11 @@ namespace mgl
         const std::vector<tinyobj::shape_t>& shapes = reader.GetShapes();
         const std::vector<tinyobj::material_t>& materials = reader.GetMaterials();
         std::map<VertexKey, uint32_t> uniqueVertices;
+        int currentMat = 0;
 
         // Loop over shapes
         for (const auto & shape : shapes)
-        {
+        {   
             // Loop over faces(polygon)
             size_t index_offset = 0;
             for (size_t face = 0; face < shape.mesh.num_face_vertices.size(); face++)
@@ -86,10 +93,17 @@ namespace mgl
                     m_indices.push_back(uniqueVertices[key]);
                 }
                 index_offset += faceVertices;
-
+                
                 // per-face material
-                // TODO handle material
-                // shapes[s].mesh.material_ids[face];
+                int id = shape.mesh.material_ids[face];
+
+                if (currentMat != id)
+                {
+                    Texture text {id, materials[id]};
+                    texture_data.push_back(text);
+
+                    currentMat = id;
+                }
             }
         }
 
@@ -97,11 +111,12 @@ namespace mgl
         SetupGPU();
     }
 
-    Mesh::Mesh(std::vector<VertexData>& vertices, std::vector<uint32_t>& indices)
+    Mesh::Mesh(std::vector<VertexData>& vertices, std::vector<uint32_t>& indices, std::vector<Texture>& textures)
         : m_verticesData(std::move(vertices))
         , m_indices(std::move(indices))
         , m_buffer(gpu::Buffer::BufferType::Vertex)
         , m_indexBuffer(gpu::Buffer::BufferType::Index)
+        , texture_data(textures)
     {
         SetupGPU();
     }
@@ -115,6 +130,17 @@ namespace mgl
 
     void Mesh::SetupGPU()
     {
+        std::string path = "resources/models/";
+
+        for(unsigned int i = 0; i < texture_data.size(); i++)
+        {
+            std::string text_file = texture_data[i].tex.diffuse_texname;
+            std::string full_path = path + text_file;
+
+            t = std::make_unique<mgl::gpu::Texture>(mgl::gpu::Texture::TextureTarget::Target2D, full_path.c_str(), true);
+            t->Bind(texture_data[i].id);
+        }
+
         m_vao.Bind();
         m_buffer.Bind();
         m_buffer.Write(sizeof(VertexData) * m_verticesData.size(), m_verticesData.data(), gpu::Buffer::BufferUsage::StaticDraw);
@@ -129,6 +155,7 @@ namespace mgl
         m_vao.Unbind();
     }
 
+    /*
     Mesh Mesh::GeneratePlane(float halfSize)
     {
         std::vector<VertexData> vertices =
@@ -145,6 +172,7 @@ namespace mgl
             1, 3, 2
         };
 
-        return {vertices, indices};
+        return {vertices, indices, textures};
     }
+    */
 } // mgl

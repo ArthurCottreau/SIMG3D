@@ -1,9 +1,13 @@
-.idea/
+bin/
+/src/MiniGLConfig.h
+
+# CMake-specific
+CMakeFiles/
 cmake-build-release/
 cmake-build-debug/
-# ignore bin but keep resources/shaders
-# this is ugly but it's more convenient and easier to have our resources directly with the executable
-bin/*
-!bin/shaders
-!bin/resources
-/src/MiniGLConfig.h
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.cmake
+_deps/
+*.a

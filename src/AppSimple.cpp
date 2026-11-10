@@ -19,8 +19,7 @@ protected:
 
         // meshes to draw
         m_meshes.push_back(std::move(mgl::Mesh("resources/models/backpack.obj")));
-        t = std::make_unique<mgl::gpu::Texture>(mgl::gpu::Texture::TextureTarget::Target2D, "resources/models/diffuse.jpg", true);
-
+        
         mgl::gpu::GLUtils::ClearColor({.2f, .2f, .2f, 1.f});
         mgl::gpu::GLUtils::SetDepthTesting(true);
         mgl::gpu::GLUtils::SetViewportSize(m_window.Width(), m_window.Height());
@@ -38,7 +37,6 @@ protected:
         s.Bind();
         s.UniformData("viewMatrix", m_camera->View());
         s.UniformData("projectionMatrix", m_camera->Projection());
-        t->Bind(0);
         for(const auto& mesh : m_meshes)
             mesh.Draw();
 
