@@ -25,14 +25,24 @@ public:
      */
     struct VertexData
     {
-        glm::vec3 pos {};
-        glm::vec3 normal {};
+        glm::vec3 pos, normal {};
         glm::vec2 texcoord {};
     };
 
     struct Texture {
         unsigned int id;
         tinyobj::material_t tex;
+    };
+
+    struct ShapeData {
+        std::vector<VertexData> m_verticesData;
+        std::vector<uint32_t> m_indices;
+        Texture texture_data;
+    };
+
+    struct BufferData
+    {
+        gpu::Buffer m_buffer, m_indexBuffer;
     };
 
     struct VertexKey {
@@ -63,13 +73,11 @@ private:
     /**
      * We store an array of vertex data, and an array of indices, since most 3D objects come in indexed form
      */
-    std::vector<VertexData> m_verticesData;
-    std::vector<uint32_t> m_indices;
-    std::vector<Texture> texture_data;
+    std::vector<ShapeData> shape_data;
 
     /** \brief Buffers that will store vertices and indices data */
-    gpu::Buffer m_buffer, m_indexBuffer;
-    gpu::Vao m_vao;
+    std::vector<BufferData> buffer_data;
+    std::vector<gpu::Vao> vao_data;
     #pragma endregion Members
 public:
     /**
@@ -83,7 +91,7 @@ public:
      * @param vertices array of vertices
      * @param indices array of indices
      */
-    Mesh(std::vector<VertexData>& vertices, std::vector<uint32_t>& indices, std::vector<Texture>& textures);
+    Mesh(std::vector<ShapeData>& shape_data);
 
     /**
      * Sets up our buffer datas, their VAO and sends them to the GPU
@@ -91,9 +99,5 @@ public:
     void SetupGPU();
 
     void Draw() const;
-
-    #pragma region Static helpers
-    static Mesh GeneratePlane(float halfSize);
-    #pragma endregion Static helpers
 };
 } // mgl
